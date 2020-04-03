@@ -7,8 +7,11 @@ using UiPath.Studio.Analyzer.Models;
 
 namespace SampleGovernanceRules.ProjectRules
 {
-
-    internal static class ActivitySettingsRule
+    //WARNING: This rule relies on undocumented and therefore unsupported functionality.
+    //Currently there is no officially supported way to access project level activity settings in a Workflow Analyzer Rule.
+    //As such this rule demonstrates how it can be accomplished with UiPath Studio 20.4 by parsing the contents of the .settings directory
+    //But the diretory structure and file formats are subject to change without notice in future versions.
+    internal static class ProjectActivitySettingsRule
     {
         public const string RuleId = "ORG-USG-003";
         private const string ConfigParameterKey = "configuration";

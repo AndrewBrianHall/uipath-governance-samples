@@ -77,7 +77,7 @@
     <Compile Include="Models\PackageVersionEntry.cs" />
     <Compile Include="Models\ProjectActivitySettingsModel.cs" />
     <Compile Include="Models\ActivitySettingValues.cs" />
-    <Compile Include="ProjectRules\ActivitySettingsRule.cs" />
+    <Compile Include="ProjectRules\ProjectActivitySettingsRule.cs" />
     <Compile Include="Models\PackageSettingsEntry.cs" />
     <Compile Include="ActivityRules\PropertySettingsRule.cs" />
     <Compile Include="ProjectRules\PackageVersionsRule.cs" />

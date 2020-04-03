@@ -9,7 +9,6 @@ namespace SampleGovernanceRules.ActivityRules
 {
     internal static class PropertySettingsRule
     {
-        // This should be as unique as possible, and should follow the naming convention.
         public const string RuleId = "ORG-USG-001";
         private const string ConfigParameterKey = "configuration";
         private const string TestConfigValue = "[{ActivityName:\"UiPath.Mail.Activities.Business.SendMailX\", PropertyName:\"Is draft\", ExpectedValue:\"True\"}]";
@@ -27,7 +26,7 @@ namespace SampleGovernanceRules.ActivityRules
             {
                 Key = ConfigParameterKey,
                 LocalizedDisplayName = Strings.ConfigurationSettingsLabel,
-                DefaultValue = TestConfigValue
+                DefaultValue = string.Empty
             });
             return rule;
         }
