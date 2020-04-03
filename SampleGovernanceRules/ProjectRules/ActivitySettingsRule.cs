@@ -10,15 +10,15 @@ namespace SampleGovernanceRules.ProjectRules
 
     internal static class ActivitySettingsRule
     {
-        public const string RuleId = "ORG-USG-002";
+        public const string RuleId = "ORG-USG-003";
         private const string ConfigParameterKey = "configuration";
         private const string TestConfigValue = "[{Package:\"UiPath.UIAutomationNext.Activities\", Setting:\"UiPath.UIAutomationNext.Activities.Generic.DelayAfter\", MinValue:\"0.3\"}]";
 
         internal static Rule<IProjectModel> Get()
         {
-            var rule = new Rule<IProjectModel>(Strings.ORG_USG_002_Name, RuleId, Inspect)
+            var rule = new Rule<IProjectModel>(Strings.ORG_USG_003_Name, RuleId, Inspect)
             {
-                RecommendationMessage = Strings.ORG_USG_002_Recommendation,
+                RecommendationMessage = Strings.ORG_USG_003_Recommendation,
                 ErrorLevel = TraceLevel.Warning,
                 ApplicableScopes = new List<string> { RuleConstants.BusinessRule }
             };
@@ -49,7 +49,7 @@ namespace SampleGovernanceRules.ProjectRules
                 var delayBeforeSetting = settingsModel.GetSettingValues(setting.Setting);
                 if (PackageReferenced(setting.Package, project.Dependencies) && !CheckDecimalSetting(delayBeforeSetting, setting))
                 {
-                    result.Messages.Add(string.Format(Strings.ORG_USG_002_Message, "Delay after", setting.MinValue));
+                    result.Messages.Add(string.Format(Strings.ORG_USG_003_Message, "Delay after", setting.MinValue));
                 }
             }
 

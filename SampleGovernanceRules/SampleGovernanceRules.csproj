@@ -30,9 +30,22 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-Nuget|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug-Nuget\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Semver, Version=2.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Semver.2.0.6\lib\net452\Semver.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities.Presentation" />
@@ -61,11 +74,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ActivityPropertySettingsEntry.cs" />
+    <Compile Include="Models\PackageVersionEntry.cs" />
     <Compile Include="Models\ProjectActivitySettingsModel.cs" />
     <Compile Include="Models\ActivitySettingValues.cs" />
     <Compile Include="ProjectRules\ActivitySettingsRule.cs" />
     <Compile Include="Models\PackageSettingsEntry.cs" />
     <Compile Include="ActivityRules\PropertySettingsRule.cs" />
+    <Compile Include="ProjectRules\PackageVersionsRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisterAnalyzerConfiguration.cs" />
     <Compile Include="RulesHelper.cs" />
@@ -78,7 +93,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>set LOCAL_NUGET_CACHE=%25userprofile%25\.nuget\packages
-set NUGET_CACHE_BINARY_LOCATION=%25LOCAL_NUGET_CACHE%25\custompropertyrule\1.1.0\lib\net461
+set NUGET_CACHE_BINARY_LOCATION=%25LOCAL_NUGET_CACHE%25\samplegovernancerules\1.0.0\lib\net461
 copy /Y "$(TargetPath)" "%25NUGET_CACHE_BINARY_LOCATION%25"</PostBuildEvent>
   </PropertyGroup>
 </Project>
