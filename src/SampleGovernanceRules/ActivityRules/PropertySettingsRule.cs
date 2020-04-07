@@ -21,7 +21,7 @@ namespace SampleGovernanceRules.ActivityRules
             var rule = new Rule<IWorkflowModel>(Strings.ORG_USG_001_Name, RuleId, Inspect)
             {
                 RecommendationMessage = Strings.ORG_USG_001_Recommendation,
-                ErrorLevel = TraceLevel.Warning,
+                ErrorLevel = TraceLevel.Error,
                 ApplicableScopes = new List<string> { RuleConstants.BusinessRule }
             };
             rule.Parameters.Add(ConfigParameterKey, new Parameter()

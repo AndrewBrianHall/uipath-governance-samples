@@ -26,7 +26,7 @@ namespace SampleGovernanceRules.ProjectRules
             var rule = new Rule<IProjectModel>(Strings.ORG_USG_002_Name, RuleId, Inspect)
             {
                 RecommendationMessage = Strings.ORG_USG_002_Recommendation,
-                ErrorLevel = TraceLevel.Warning,
+                ErrorLevel = TraceLevel.Error,
                 ApplicableScopes = new List<string> { RuleConstants.BusinessRule }
             };
             rule.Parameters.Add(ConfigParameterKey, new Parameter()
