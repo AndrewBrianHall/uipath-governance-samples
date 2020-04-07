@@ -1,7 +1,10 @@
-﻿using SampleGovernanceRules.Models;
+﻿using SampleGovernanceRules.ActivityRules.WorkflowHelpers;
+using SampleGovernanceRules.Extensions;
+using SampleGovernanceRules.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UiPath.Studio.Activities.Api.Analyzer.Rules;
 using UiPath.Studio.Analyzer.Models;
 
@@ -11,12 +14,11 @@ namespace SampleGovernanceRules.ActivityRules
     {
         public const string RuleId = "ORG-USG-001";
         private const string ConfigParameterKey = "configuration";
-        private const string TestConfigValue = "[{ActivityName:\"UiPath.Mail.Activities.Business.SendMailX\", PropertyName:\"Is draft\", ExpectedValue:\"True\"}]";
 
-        internal static Rule<IActivityModel> Get()
+        internal static Rule<IWorkflowModel> Get()
         {
 
-            var rule = new Rule<IActivityModel>(Strings.ORG_USG_001_Name, RuleId, Inspect)
+            var rule = new Rule<IWorkflowModel>(Strings.ORG_USG_001_Name, RuleId, Inspect)
             {
                 RecommendationMessage = Strings.ORG_USG_001_Recommendation,
                 ErrorLevel = TraceLevel.Warning,
@@ -31,52 +33,115 @@ namespace SampleGovernanceRules.ActivityRules
             return rule;
         }
 
-        private static InspectionResult Inspect(IActivityModel activity, Rule ruleInstance)
+        private static InspectionResult Inspect(IWorkflowModel workflow, Rule ruleInstance)
         {
             var result = new InspectionResult();
-            var settings = GetSettingsEntries(ruleInstance);
+            List<ActivityPropertySetting> settings = GetSettingsEntries(ruleInstance);
 
             if (settings == null)
             {
                 return result;
             }
-            foreach (var setting in settings)
-            {
-                if (!string.IsNullOrEmpty(activity.Type) && activity.Type.StartsWith(setting.ActivityName, StringComparison.OrdinalIgnoreCase))
-                {
-                    var property = RulesHelper.GetProperty(activity.Properties, setting.PropertyName);
-                    if (property != null)
-                    {
-                        StringComparison caseComparison = setting.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
-                        if (!property.DefinedExpression.Equals(setting.ExpectedValue, caseComparison))
-                        {
-                            result.Messages.Add(string.Format(Strings.ORG_USG_001_Message, activity.DisplayName));
-                        }
-                    }
-                }
-            }
+            var propertiesProcessor = new PropertyValueValidator(settings);
+            var workflowProcessor = new WorkflowProcessor(propertiesProcessor);
+            workflowProcessor.WalkWorkflow(workflow.Root);
+            
 
-            if (result.Messages.Count > 0)
+            if (propertiesProcessor.Messages.Count > 0)
             {
                 result.HasErrors = true;
                 result.ErrorLevel = TraceLevel.Error;
                 result.RecommendationMessage = ruleInstance.RecommendationMessage;
+                result.InspectionMessages = propertiesProcessor.Messages;
             }
 
             return result;
         }
 
-        private static ActivityPropertySettingsEntry[] GetSettingsEntries(Rule ruleInstance)
+        private static List<ActivityPropertySetting> GetSettingsEntries(Rule ruleInstance)
         {
             if (ruleInstance.Parameters.TryGetValue(ConfigParameterKey, out var parameter) &&
                 !string.IsNullOrEmpty(parameter.Value))
             {
-                var entry = Newtonsoft.Json.JsonConvert.DeserializeObject<ActivityPropertySettingsEntry[]>(parameter.Value);
-                return entry;
+                return ParseSettingsEntry(parameter.Value);
             }
 
             return null;
         }
+
+        internal static List<ActivityPropertySetting> ParseSettingsEntry(string configEntry)
+        {
+            var settings = new List<ActivityPropertySetting>();
+
+            var entries = configEntry?.Split(';');
+
+            if (entries == null)
+            {
+                return settings;
+            }
+
+            foreach (var entry in entries)
+            {
+                if (string.IsNullOrEmpty(entry))
+                {
+                    continue;
+                }
+
+                var settingsModel = new ActivityPropertySetting();
+                var properties = entry.Split(',');
+                foreach (var property in properties)
+                {
+                    var propertyParts = property.Split(':');
+                    settingsModel.SetProperty(propertyParts[0], propertyParts[1]);
+                }
+                settings.Add(settingsModel);
+            }
+
+            return settings;
+        }
     }
+
+    internal class PropertyValueValidator : IActivityValidator
+    {
+        public List<InspectionMessage> Messages { get; protected set; } = new List<InspectionMessage>();
+
+        protected readonly List<ActivityPropertySetting> _propertySettings;
+
+        public PropertyValueValidator(List<ActivityPropertySetting> propertySettings)
+        {
+            _propertySettings = propertySettings;
+        }
+
+        protected bool ActivityBreaksRule(string activityType, IReadOnlyCollection<IPropertyModel> properties, out string message)
+        {
+            message = null;
+            var matchingSettings = _propertySettings.Where(s => s.ActivityTypeMatches(activityType));
+            if (matchingSettings.Count() > 0)
+            {
+                var violatingProperties = properties.Where(p => matchingSettings.Any(s => s.PropertyNameMatches(p.DisplayName) && !s.ValueMatches(p.DefinedExpression)));
+                if(violatingProperties.Count() > 0)
+                {
+                    message = string.Format(Strings.ORG_USG_001_Message, violatingProperties.FirstOrDefault().DisplayName, activityType);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void ProcessActivity(IActivityModel activity)
+        {
+            var activityType = activity.Type.SubstringBefore(',');
+            if (ActivityBreaksRule(activityType, activity.Properties, out string message))
+            {
+                this.Messages.Add(new ActivityMessage
+                {
+                    Message = message, 
+                    ActivityId = activity.GetActivityId()
+                });
+            }
+        }
+    }
+
 }

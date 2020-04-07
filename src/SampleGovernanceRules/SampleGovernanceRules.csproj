@@ -73,6 +73,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WorkflowHelpers\IActivityValidator.cs" />
+    <Compile Include="WorkflowHelpers\WorkflowProcessor.cs" />
+    <Compile Include="Extensions\ActivityExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Models\ActivityPropertySettingsEntry.cs" />
     <Compile Include="Models\PackageVersionEntry.cs" />
     <Compile Include="Models\ProjectActivitySettingsModel.cs" />
