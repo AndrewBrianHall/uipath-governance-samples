@@ -14,10 +14,6 @@ namespace SampleGovernanceRules.Models
         public string Value { get; set; }
         public bool IgnoreCase { get; set; } = true;
 
-        protected string _activityRegex;
-        protected string _propertyRegex;
-        protected string _valueRegex;
-
         public void SetProperty(string property, string value)
         {
             property = property.ToLowerInvariant();
@@ -26,15 +22,12 @@ namespace SampleGovernanceRules.Models
             {
                 case "property":
                     this.Property = value;
-                    _propertyRegex = Regex.Escape(value).Replace("\\*", ".*");
                     break;
                 case "activity":
                     this.Activity = value;
-                    _activityRegex = Regex.Escape(value).Replace("\\*", ".*");
                     break;
                 case "value":
                     this.Value = value;
-                    _valueRegex = Regex.Escape(value).Replace("\\*", ".*");
                     break;
                 case "ignorecase":
                     bool boolValue = true;
@@ -46,17 +39,20 @@ namespace SampleGovernanceRules.Models
 
         internal bool ActivityTypeMatches(string activityType)
         {
-            return PropertyMatchesRegex(activityType,this.Activity, _activityRegex);
+            var activityRegex = Regex.Escape(this.Activity).Replace("\\*", ".*");
+            return PropertyMatchesRegex(activityType, this.Activity, activityRegex);
         }
 
         internal bool PropertyNameMatches(string property)
         {
-            return PropertyMatchesRegex(property, this.Property, _propertyRegex);
+            var propertyRegex = Regex.Escape(this.Property).Replace("\\*", ".*");
+            return PropertyMatchesRegex(property, this.Property, propertyRegex);
         }
 
         internal bool ValueMatches(string expression)
         {
-            return PropertyMatchesRegex(expression, this.Value, _valueRegex);
+            var valueRegex = Regex.Escape(this.Value).Replace("\\*", ".*");
+            return PropertyMatchesRegex(expression, this.Value, valueRegex);
         }
 
         private static bool PropertyMatchesRegex(string input, string property, string regex, bool matchCase = false)

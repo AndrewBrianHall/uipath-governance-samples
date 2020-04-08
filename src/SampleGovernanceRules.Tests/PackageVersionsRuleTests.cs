@@ -14,10 +14,10 @@ namespace SampleGovernanceRules.Tests
         const string UiAutomationNextPackage = "UiPath.UIAutomationNext.Activities";
 
         static readonly string SettingsJson = "[" +
-            $"{{Name:\"{UiAutomationNextPackage}\", MinVersion:\"20.4.0-beta.853134\"}}," +
-            $"{{Name:\"{ExcelPackage}\", MinVersion:\"1.4.2\", MaxVersion:\"1.4.2\"}}," +
-            "{Name:\"UiPath.Word.Activities\", MinVersion:\"1.4.2\"}," +
-            $"{{Name:\"{ComplextScenariosPackage}\", MinVersion:\"1.0.0\", AllowPrerelease:\"True\"}}" +
+            $"{{Name:\"{UiAutomationNextPackage}\", Min:\"20.4.0-beta.853134\"}}," +
+            $"{{Name:\"{ExcelPackage}\", Min:\"1.4.2\", Max:\"1.4.2\"}}," +
+            "{Name:\"UiPath.Word.Activities\", Min:\"1.4.2\"}," +
+            $"{{Name:\"{ComplextScenariosPackage}\", Min:\"1.0.0\", AllowPrerelease:\"True\"}}" +
             "]";
 
         bool _settingsParsed;
@@ -63,7 +63,7 @@ namespace SampleGovernanceRules.Tests
         [TestMethod]
         public void InvalidConfig()
         {
-            const string badSettingsJson = "Name:\"UiPath.UIAutomation.Next.Activities\", MinVersion:\"20.4.0\"";
+            const string badSettingsJson = "Name:\"UiPath.UIAutomation.Next.Activities\", Min:\"20.4.0\"";
             bool success = PackageVersionsRule.TryParseSettingsJson(badSettingsJson, out Dictionary<string, PackageVersionEntry> settings);
 
             Assert.IsFalse(success);

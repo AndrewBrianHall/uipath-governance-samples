@@ -1,5 +1,4 @@
-﻿using SampleGovernanceRules.ActivityRules.WorkflowHelpers;
-using SampleGovernanceRules.Extensions;
+﻿using SampleGovernanceRules.Extensions;
 using SampleGovernanceRules.Models;
 using System;
 using System.Collections.Generic;
@@ -15,10 +14,10 @@ namespace SampleGovernanceRules.ActivityRules
         public const string RuleId = "ORG-USG-001";
         private const string ConfigParameterKey = "configuration";
 
-        internal static Rule<IWorkflowModel> Get()
+        internal static Rule<IActivityModel> Get()
         {
 
-            var rule = new Rule<IWorkflowModel>(Strings.ORG_USG_001_Name, RuleId, Inspect)
+            var rule = new Rule<IActivityModel>(Strings.ORG_USG_001_Name, RuleId, Inspect)
             {
                 RecommendationMessage = Strings.ORG_USG_001_Recommendation,
                 ErrorLevel = TraceLevel.Error,
@@ -33,7 +32,7 @@ namespace SampleGovernanceRules.ActivityRules
             return rule;
         }
 
-        private static InspectionResult Inspect(IWorkflowModel workflow, Rule ruleInstance)
+        private static InspectionResult Inspect(IActivityModel activity, Rule ruleInstance)
         {
             var result = new InspectionResult();
             List<ActivityPropertySetting> settings = GetSettingsEntries(ruleInstance);
@@ -43,20 +42,37 @@ namespace SampleGovernanceRules.ActivityRules
                 return result;
             }
 
-            var propertiesProcessor = new PropertyValueValidator(settings);
-            var workflowProcessor = new WorkflowProcessor(propertiesProcessor);
-            workflowProcessor.WalkWorkflow(workflow.Root);
-            
+            var activityType = activity.Type.SubstringBefore(',');
+            if (ActivityBreaksRule(activityType, activity.Properties, settings, out string message))
+            {
+                result.Messages.Add(message);
+            }
 
-            if (propertiesProcessor.Messages.Count > 0)
+            if (result.Messages.Count > 0)
             {
                 result.HasErrors = true;
                 result.ErrorLevel = TraceLevel.Error;
                 result.RecommendationMessage = ruleInstance.RecommendationMessage;
-                result.InspectionMessages = propertiesProcessor.Messages;
             }
 
             return result;
+        }
+
+        private static bool ActivityBreaksRule(string activityType, IReadOnlyCollection<IPropertyModel> properties, List<ActivityPropertySetting> settings, out string message)
+        {
+            message = null;
+            var matchingSettings = settings.Where(s => s.ActivityTypeMatches(activityType));
+            if (matchingSettings.Count() > 0)
+            {
+                var violatingProperties = properties.Where(p => matchingSettings.Any(s => s.PropertyNameMatches(p.DisplayName) && !s.ValueMatches(p.DefinedExpression)));
+                if (violatingProperties.Count() > 0)
+                {
+                    message = string.Format(Strings.ORG_USG_001_Message, violatingProperties.FirstOrDefault().DisplayName, activityType);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static List<ActivityPropertySetting> GetSettingsEntries(Rule ruleInstance)
@@ -99,48 +115,6 @@ namespace SampleGovernanceRules.ActivityRules
             }
 
             return settings;
-        }
-    }
-
-    internal class PropertyValueValidator : IActivityValidator
-    {
-        public List<InspectionMessage> Messages { get; protected set; } = new List<InspectionMessage>();
-
-        protected readonly List<ActivityPropertySetting> _propertySettings;
-
-        public PropertyValueValidator(List<ActivityPropertySetting> propertySettings)
-        {
-            _propertySettings = propertySettings;
-        }
-
-        protected bool ActivityBreaksRule(string activityType, IReadOnlyCollection<IPropertyModel> properties, out string message)
-        {
-            message = null;
-            var matchingSettings = _propertySettings.Where(s => s.ActivityTypeMatches(activityType));
-            if (matchingSettings.Count() > 0)
-            {
-                var violatingProperties = properties.Where(p => matchingSettings.Any(s => s.PropertyNameMatches(p.DisplayName) && !s.ValueMatches(p.DefinedExpression)));
-                if(violatingProperties.Count() > 0)
-                {
-                    message = string.Format(Strings.ORG_USG_001_Message, violatingProperties.FirstOrDefault().DisplayName, activityType);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public void ProcessActivity(IActivityModel activity)
-        {
-            var activityType = activity.Type.SubstringBefore(',');
-            if (ActivityBreaksRule(activityType, activity.Properties, out string message))
-            {
-                this.Messages.Add(new ActivityMessage
-                {
-                    Message = message, 
-                    ActivityId = activity.GetActivityId()
-                });
-            }
         }
     }
 
