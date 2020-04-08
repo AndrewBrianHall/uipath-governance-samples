@@ -5,7 +5,7 @@ if exist "%COMMUNITY_INSTALL_FOLDER%\Rules\" (
     SET RULES_FOLDER="%COMMUNITY_INSTALL_FOLDER%\Rules\"
     goto copyrules
 ) 
-if exist "%programfiles(x86)%\UiPath\Studio\Rules" (
+if exist "%programfiles(x86)%\UiPath\Studio\Rules\" (
     SET RULES_FOLDER="%programfiles(x86)%\UiPath\Studio\Rules"
     goto copyrules
 ) else (
