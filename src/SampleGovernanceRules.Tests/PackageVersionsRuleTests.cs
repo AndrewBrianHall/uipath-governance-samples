@@ -12,12 +12,14 @@ namespace SampleGovernanceRules.Tests
         const string ComplextScenariosPackage = "UiPath.ComplexScenarios.Activities";
         const string ExcelPackage = "UiPath.Excel.Activities";
         const string UiAutomationNextPackage = "UiPath.UIAutomationNext.Activities";
+        const string MailActivitiesPackage = "UiPath.Mail.Activities";
 
         static readonly string SettingsJson = "[" +
             $"{{Name:\"{UiAutomationNextPackage}\", Min:\"20.4.0-beta.853134\"}}," +
             $"{{Name:\"{ExcelPackage}\", Min:\"1.4.2\", Max:\"1.4.2\"}}," +
             "{Name:\"UiPath.Word.Activities\", Min:\"1.4.2\"}," +
-            $"{{Name:\"{ComplextScenariosPackage}\", Min:\"1.0.0\", AllowPrerelease:\"True\"}}" +
+            $"{{Name:\"{ComplextScenariosPackage}\", Min:\"1.0.0\", AllowPrerelease:\"True\"}}," +
+            $"{{Name:\"{MailActivitiesPackage}\", Min:\"1.7\", Max:\"1.7.999\", AllowPrerelease:\"False\"}}" +
             "]";
 
         bool _settingsParsed;
@@ -71,7 +73,7 @@ namespace SampleGovernanceRules.Tests
         }
 
         [TestMethod]
-        public void AllowPrereleasePackage()
+        public void PrereleasePackages()
         {
             bool globallyPermitted = PackageVersionsRule.IsPackageValid(UiAutomationNextPackage, "20.4.0-beta.853134", _settings, true);
             bool individuallyPermitted = PackageVersionsRule.IsPackageValid(ComplextScenariosPackage, "1.0.2-beta.852560", _settings, false);
@@ -85,10 +87,32 @@ namespace SampleGovernanceRules.Tests
         {
             bool nonPrereleaseVersion = PackageVersionsRule.IsPackageValid(UiAutomationNextPackage, "20.4.0", _settings, true);
             bool prereleaseVersion = PackageVersionsRule.IsPackageValid(UiAutomationNextPackage, "20.3.0", _settings, false);
+            bool individuallyBlocked = PackageVersionsRule.IsPackageValid(MailActivitiesPackage, "1.7.5-beta123", _settings, true);
+            bool globallyBlocked = PackageVersionsRule.IsPackageValid("UiPath.System.Activities", "20.4.0-beta.864462", _settings, false);
 
             Assert.IsTrue(nonPrereleaseVersion);
             Assert.IsFalse(prereleaseVersion);
+            Assert.IsFalse(individuallyBlocked);
+            Assert.IsFalse(globallyBlocked);
         }
-       
+
+        [TestMethod]
+        public void RangeTest()
+        {
+            bool below = PackageVersionsRule.IsPackageValid(MailActivitiesPackage, "1.6.0-beta123", _settings, true);
+            bool within = PackageVersionsRule.IsPackageValid(MailActivitiesPackage, "1.7.9", _settings, true);
+            bool above = PackageVersionsRule.IsPackageValid(MailActivitiesPackage, "1.6.9", _settings, true);
+
+            Assert.IsFalse(below);
+            Assert.IsTrue(within);
+            Assert.IsFalse(above);
+        }
+
+        [TestMethod]
+        public void UnspecifiedPackage()
+        {
+            Assert.IsTrue(PackageVersionsRule.IsPackageValid("UiPath.System.Activities", "20.4", _settings, true));
+        }
+
     }
 }

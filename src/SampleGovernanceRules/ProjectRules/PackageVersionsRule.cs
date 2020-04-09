@@ -73,28 +73,36 @@ namespace SampleGovernanceRules.ProjectRules
 
         internal static bool IsPackageValid(string name, string version, Dictionary<string, PackageVersionEntry> settings, bool allowPrerelase)
         {
-            SemVersion packageSemVersion = SemVersion.Parse(version);
-            bool packageIsPrerelease = !string.IsNullOrEmpty(packageSemVersion.Prerelease);
             PackageVersionEntry setting = null;
             bool hasPackageSettings = settings != null && settings.TryGetValue(name.ToLowerInvariant(), out setting);
-            bool packagePrereleaseAllowed = setting != null && setting.AllowPrerelease;
+            SemVersion packageSemVersion = SemVersion.Parse(version);
+            bool packageIsPrerelease = !string.IsNullOrEmpty(packageSemVersion.Prerelease);
 
-            if (packageIsPrerelease && !(allowPrerelase || packagePrereleaseAllowed))
+            if (packageIsPrerelease)
+            {
+                bool packagePrereleaseAllowed = allowPrerelase;
+                bool packageSpecifiesPrerelease = setting != null && setting.TryGetPreleaseValue(out packagePrereleaseAllowed);
+                if((packageSpecifiesPrerelease && !packagePrereleaseAllowed) 
+                    || (!packageSpecifiesPrerelease && !allowPrerelase))
+                {
+                    return false;
+                }
+            }
+
+            if (!hasPackageSettings)
+            {
+                return true;
+            }
+
+            if (setting.TryGetMinSemVersion(out SemVersion minSemVersion)
+                && packageSemVersion < minSemVersion)
             {
                 return false;
             }
-            if (hasPackageSettings)
+            if (setting.TryGetMaxSemVersion(out SemVersion maxSemVersion)
+                && packageSemVersion > maxSemVersion)
             {
-                if (setting.TryGetMinSemVersion(out SemVersion minSemVersion)
-                    && packageSemVersion < minSemVersion)
-                {
-                    return false;
-                }
-                if (setting.TryGetMaxSemVersion(out SemVersion maxSemVersion)
-                    && packageSemVersion > maxSemVersion)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
