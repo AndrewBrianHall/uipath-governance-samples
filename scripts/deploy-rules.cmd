@@ -14,10 +14,11 @@ if exist "%programfiles(x86)%\UiPath\Studio\Rules\" (
 )
 
 :copyrules
+set SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
 if exist %RULES_FOLDER% (
     echo on
-    set SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
-    for /f %%f in ('dir /b %SAMPLE_BINARY_DIR%') DO copy /Y %SAMPLE_BINARY_DIR%\%%f %RULES_FOLDER%
+    echo %SAMPLE_BINARY_DIR%
+    for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO copy /Y "%SAMPLE_BINARY_DIR%\%%f" %RULES_FOLDER%
     echo off
     goto commonexit
 )
