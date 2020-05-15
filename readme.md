@@ -20,3 +20,5 @@ This repo also contains a binary with two sample rules. To showcase how an organ
 ```console
 scripts\deploy-rules.cmd
 ```
+### Custom Rule Source
+The source code for the custom rules are available in the [uipath-sample-wfa-rules repository](https://github.com/AndrewBrianHall/uipath-sample-wfa-rules/)
