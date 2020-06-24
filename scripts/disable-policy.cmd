@@ -9,6 +9,11 @@ if exist "%appdata%\UiPath\uipath.policies.config.cache" (
     del "%appdata%\UiPath\uipath.policies.config.cache"
 )
 
+if exist "%appdata%\NuGet\Nuget.Config.original" (
+    del "%appdata%\NuGet\Nuget.Config"
+    ren "%appdata%\NuGet\Nuget.Config.original" "Nuget.Config"
+)
+
 FOR /D %%G in ("%localappdata%\UiPath\app-*") DO set COMMUNITY_INSTALL_FOLDER=%%G
 if exist "%COMMUNITY_INSTALL_FOLDER%\Rules\" (
     SET CUSTOM_RULE_FILE="%COMMUNITY_INSTALL_FOLDER%\Rules"
