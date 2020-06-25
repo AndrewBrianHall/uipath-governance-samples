@@ -24,6 +24,11 @@ reg  add  HKEY_CURRENT_USER\Software\UiPath /v GovernanceSource /t REG_SZ /f /d 
 
 copy "%appdata%\NuGet\Nuget.Config" "%appdata%\NuGet\Nuget.Config.original"
 
+SET RULES_CONFIG_FOLDER=%localappdata%\UiPath\Rules
+if exist "%RULES_CONFIG_FOLDER%\RuleConfig.json" (
+    copy "%RULES_CONFIG_FOLDER%\RuleConfig.json" "%RULES_CONFIG_FOLDER%\RuleConfig.json.original"
+)
+
 set SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
 if exist %RULES_FOLDER% (
     for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO copy /Y "%SAMPLE_BINARY_DIR%\%%f" %RULES_FOLDER% >nul

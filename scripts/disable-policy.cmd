@@ -31,6 +31,13 @@ if exist "%programfiles(x86)%\UiPath\Studio\Rules\" (
 set SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
 for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO if exist %CUSTOM_RULE_FILE%\%%f ( del %CUSTOM_RULE_FILE%\%%f )
 echo Custom rules deleted successfully
+
+SET RULES_CONFIG_FOLDER=%localappdata%\UiPath\Rules
+if exist "%RULES_CONFIG_FOLDER%\RuleConfig.json.original" (
+    del "%RULES_CONFIG_FOLDER%\RuleConfig.json" 
+    ren "%RULES_CONFIG_FOLDER%\RuleConfig.json.original" "RuleConfig.json"
+)
+
 goto commonexit
 
 
