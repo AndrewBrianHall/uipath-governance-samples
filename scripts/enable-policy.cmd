@@ -1,5 +1,8 @@
 @echo off
-if /I "%1" == "local" (
+SET _LOCAL_FILE=0
+IF /I "%1" == "local" SET _LOCAL_FILE=1
+IF /I "%2" == "local" SET _LOCAL_FILE=1
+IF %_LOCAL_FILE% EQU 1 (
     SET POLICY_FILE="%CD%\..\sample-policy\uipath.policies.config"
 ) else (
     SET POLICY_FILE="https://raw.githubusercontent.com/AndrewBrianHall/uipath-governance-samples/master/sample-policy/uipath.policies.config"
@@ -29,8 +32,12 @@ if exist "%RULES_CONFIG_FOLDER%\RuleConfig.json" (
     copy "%RULES_CONFIG_FOLDER%\RuleConfig.json" "%RULES_CONFIG_FOLDER%\RuleConfig.json.original"
 )
 
-set SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
-if exist %RULES_FOLDER% (
+SET SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
+SET _DEPLOY_RULES=1
+IF exist %RULES_FOLDER% SET _DEPLOY_RULES=1
+IF /I "%1" == "norules" SET _DEPLOY_RULES=0
+IF /I "%2" == "norules" SET _DEPLOY_RULES=0
+IF %_DEPLOY_RULES% EQU 1 (
     for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO copy /Y "%SAMPLE_BINARY_DIR%\%%f" %RULES_FOLDER% >nul
     echo Custom rules deployed successfully
 )
