@@ -5,7 +5,7 @@ IF /I "%2" == "local" SET _LOCAL_FILE=1
 IF %_LOCAL_FILE% EQU 1 (
     SET POLICY_FILE="%CD%\..\sample-policy\uipath.policies.config"
 ) else (
-    SET POLICY_FILE="https://raw.githubusercontent.com/AndrewBrianHall/uipath-governance-samples/master/sample-policy/uipath.policies.config"
+    SET POLICY_FILE="https://raw.githubusercontent.com/AndrewBrianHall/uipath-governance-samples/no-studio-pro/sample-policy/uipath.policies.config"
 )
 
 reg  add  HKEY_CURRENT_USER\Software\UiPath /v GovernanceSource /t REG_SZ /f /d %POLICY_FILE% >nul
