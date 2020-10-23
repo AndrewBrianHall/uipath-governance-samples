@@ -1,4 +1,14 @@
 @echo off
+
+set _EXE=UiPath.Studio.exe
+FOR /F %%x IN ('tasklist /NH /FI "IMAGENAME eq %_EXE%"') DO IF %%x == %_EXE% goto PROCESSRUNNING
+goto ENABLEPOLICY
+
+:PROCESSRUNNING
+echo Close all open instances of Studio to enable
+goto :exit
+
+:ENABLEPOLICY
 SET _LOCAL_FILE=0
 IF /I "%1" == "local" SET _LOCAL_FILE=1
 IF /I "%2" == "local" SET _LOCAL_FILE=1
@@ -40,4 +50,4 @@ IF %_DEPLOY_RULES% EQU 1 (
 
 echo Policy successfully enabled
 
-:commonexit
+:exit

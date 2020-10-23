@@ -1,5 +1,14 @@
 @echo off
 
+set _EXE=UiPath.Studio.exe
+FOR /F %%x IN ('tasklist /NH /FI "IMAGENAME eq %_EXE%"') DO IF %%x == %_EXE% goto PROCESSRUNNING
+goto DISABLEPOLICY
+
+:PROCESSRUNNING
+echo Close all open Studio instances before disabling policy
+goto :exit
+
+:DISABLEPOLICY
 reg query HKEY_CURRENT_USER\Software\UiPath /v GovernanceSource >nul 
 if %errorlevel% == 0 (
     reg  delete  HKEY_CURRENT_USER\Software\UiPath /v GovernanceSource /f >nul
@@ -24,7 +33,7 @@ if exist "%programfiles(x86)%\UiPath\Studio\Rules\" (
     goto copyrules
 ) else (
     echo "No Studio installation found"
-    goto commonexit
+    goto OkExit
 )
 
 :copyrules
@@ -33,13 +42,15 @@ for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO if exist %CUSTOM_RULE_FILE%\%%
 echo Custom rules deleted successfully
 
 SET RULES_CONFIG_FOLDER=%localappdata%\UiPath\Rules
-if exist "%RULES_CONFIG_FOLDER%\RuleConfig.json.original" (
+if exist "%RULES_CONFIG_FOLDER%\RuleConfig.json" (
     del "%RULES_CONFIG_FOLDER%\RuleConfig.json" 
-    ren "%RULES_CONFIG_FOLDER%\RuleConfig.json.original" "RuleConfig.json"
+    @REM ren "%RULES_CONFIG_FOLDER%\RuleConfig.json.original" "RuleConfig.json"
 )
 
-goto commonexit
+goto OkExit
 
 
-:commonexit
+:OkExit
 echo Policy successfully disabled
+
+:exit
