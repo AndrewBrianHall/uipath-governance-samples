@@ -13,6 +13,7 @@ SET _LOCAL_FILE=0
 IF /I "%1" == "local" SET _LOCAL_FILE=1
 IF /I "%2" == "local" SET _LOCAL_FILE=1
 IF %_LOCAL_FILE% EQU 1 (
+    CALL make-config.cmd
     SET POLICY_FILE="%CD%\..\sample-policy\uipath.policies.config"
 ) else (
     SET POLICY_FILE="https://raw.githubusercontent.com/AndrewBrianHall/uipath-governance-samples/master/sample-policy/uipath.policies.config"
