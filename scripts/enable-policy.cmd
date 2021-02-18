@@ -42,8 +42,8 @@ SET _DEPLOY_RULES=1
 IF exist %RULES_FOLDER% SET _DEPLOY_RULES=1
 IF /I "%1" == "norules" SET _DEPLOY_RULES=0
 IF /I "%2" == "norules" SET _DEPLOY_RULES=0
+SET SAMPLE_BINARY_DIR=%CD%\..\sample-rules\binaries
 IF %_DEPLOY_RULES% EQU 1 (
-    SET SAMPLE_BINARY_DIR=%CD%\..\sample-rule-binaries
     
     for /f %%f in ('dir /b "%SAMPLE_BINARY_DIR%"') DO copy /Y "%SAMPLE_BINARY_DIR%\%%f" %RULES_FOLDER% >nul
     echo Custom rules deployed successfully
