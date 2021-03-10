@@ -18,5 +18,8 @@ scripts\enable-policy.cmd [local] [norules]
 scripts\disable-policy.cmd
 ```
 
+## See it Action
+Watch the official [Governance made easy for the StudioX user](https://www.youtube.com/watch?v=A1ElmiD_YIU) video
+
 ### Custom Rule Source
 The source code for the custom rules is available in the [uipath-sample-wfa-rules repository](https://github.com/AndrewBrianHall/uipath-sample-wfa-rules/)
